@@ -1,0 +1,19 @@
+kind: Suite
+apiVersion: test.gatekeeper.sh/v1alpha1
+tests:
+- name: allowed-pod-name
+  template: ../yaml/template_PodNaming.yaml
+  constraint: ../yaml/constraint_PodNaming.yaml
+  cases:
+  - name: pod-name-allowed
+    object: ../resources/pod-good.yaml
+    assertions:
+    - violations: no
+  - name: pod-name-disallowed
+    object: ../resources/pod-bad.yaml
+    assertions:
+    - violations: yes
+  - name: pod-name-allowed-two
+    object: ../resources/pod-labels.yaml
+    assertions:
+    - violations: no

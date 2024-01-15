@@ -1,0 +1,49 @@
+apiVersion: templates.gatekeeper.sh/v1beta1
+kind: ConstraintTemplate
+metadata:
+  creationTimestamp: null
+  name: redismemorysize
+spec:
+  crd:
+    spec:
+      names:
+        kind: RedisMemorySize
+      validation:
+        openAPIV3Schema:
+          properties:
+            memory:
+              items:
+                type: integer
+              type: array
+  targets:
+  - rego: |-
+      package redis.memory.size
+
+      violation[{"msg": msg}] {
+        # Perform a violation check
+        not input.review.object.spec.memorySizeGb
+
+        # Error Message
+        msg := "The RedisInstance has no memorySizeGb; please provide a RedisInstance with a valid memorySizeGb."
+      }
+
+      violation[{"msg": msg}] {
+        # Validates regardeless of version
+        contains(input.review.object.apiVersion, "redis.cnrm.cloud.google.com")
+
+        # Perform a violation check
+        not ValidRedisInstanceMemorySizeGb(input.review.object.spec.memorySizeGb)
+
+        #Error Message
+        msg := sprintf("The RedisInstance %v has a memorySizeGb of %v which is not allowed. Allowed memorySizeGb: %v", [input.review.object.metadata.name, input.review.object.spec.memorySizeGb, input.parameters.memory])
+      }
+
+      ValidRedisInstanceMemorySizeGb(mem) {
+        # Ensure that the policy applies exclusively to RedisInstance
+        input.review.object.kind == "RedisInstance"
+
+        # Verify if it's a valid memorySizeGb
+        mem == input.parameters.memory[_]
+      }
+    target: admission.k8s.gatekeeper.sh
+status: {}

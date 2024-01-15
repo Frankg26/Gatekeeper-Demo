@@ -1,0 +1,11 @@
+apiVersion: redis.cnrm.cloud.google.com/v1beta1
+kind: RedisInstance
+metadata:
+  labels:
+    label-one: "redis-one"
+  name: frank-redis-01
+spec:
+  displayName: Sample Redis Instance 1
+  region: us-central1
+  tier: BASIC
+  memorySizeGb: 16

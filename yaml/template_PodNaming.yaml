@@ -1,0 +1,46 @@
+apiVersion: templates.gatekeeper.sh/v1beta1
+kind: ConstraintTemplate
+metadata:
+  creationTimestamp: null
+  name: podnaming
+spec:
+  crd:
+    spec:
+      names:
+        kind: PodNaming
+  targets:
+  - rego: |-
+      package pod.naming
+
+      violation[{"msg": msg}] {
+        # Perform a violation check
+        not input.review.object.metadata.name
+
+        # Error Message
+        msg := "There is no Pod name; please provide a manifest with a valid Pod name."
+      }
+
+      violation[{"msg": msg}] {
+        # Perform a violation check
+        not ValidPodName
+
+        # Error Message
+        msg := sprintf("The Pod %v is not following the correct naming convention. The valid naming convention is: {org}-pod-{01~10}.", [input.review.object.metadata.name])
+      }
+
+      ValidPodName {
+        # Ensure that the policy applies exclusively to Pods
+        input.review.object.kind == "Pod"
+
+        # Retrieve the Pod name pieces and ensure the correct naming convention, which mandates two parts after the split
+        pieces := split(input.review.object.metadata.name, "-pod-")
+        count(pieces) == 2
+
+        # Validate the pieces of the Pod name
+        org := pieces[0]
+        id := pieces[1]
+        re_match("[a-zA-Z]+", org)
+        re_match("[0-9]", id)
+      }
+    target: admission.k8s.gatekeeper.sh
+status: {}

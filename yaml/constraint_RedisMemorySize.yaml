@@ -1,0 +1,18 @@
+apiVersion: constraints.gatekeeper.sh/v1beta1
+kind: RedisMemorySize
+metadata:
+  name: redismemorysize
+spec:
+  enforcementAction: deny
+  match:
+    kinds:
+    - apiGroups:
+      - redis.cnrm.cloud.google.com
+      kinds:
+      - RedisInstance
+    namespaces: 
+    - frank
+  parameters:
+    memory:
+    - 8
+    - 16

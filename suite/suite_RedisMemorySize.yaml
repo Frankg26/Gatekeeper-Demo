@@ -1,0 +1,15 @@
+kind: Suite
+apiVersion: test.gatekeeper.sh/v1alpha1
+tests:
+- name: redis-memory-size
+  template: ../yaml/template_RedisMemorySize.yaml
+  constraint: ../yaml/constraint_RedisMemorySize.yaml
+  cases:
+  - name: redis-memory-size-allowed
+    object: ../resources/redis-good.yaml
+    assertions:
+    - violations: no
+  - name: redis-memory-size-disallowed
+    object: ../resources/redis-bad.yaml
+    assertions:
+    - violations: yes

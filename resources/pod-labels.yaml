@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: frank-pod-07
+  labels:
+    environment: "Gaming" 
+    team: "PairProgrammers"
+    app: "BattleRoyal"
+spec:
+  containers:
+  - name: nginx
+    image: nginx
+    ports:
+    - containerPort: 80
